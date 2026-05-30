@@ -70,8 +70,9 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
             "http://localhost:5173",
             "http://localhost:3000",
-            "https://*.vercel.app",
-            "https://*.azurestaticapps.net"
+            "https://sims-frontend-4lvxndds8-varshitha-s-projects1.vercel.app",
+            "https://sims-frontend-six.vercel.app",
+            "https://*.vercel.app"
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
