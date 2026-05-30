@@ -4,7 +4,6 @@ using SIMS.Models;
 
 namespace SIMS.Repositories;
 
-// Interfaces
 public interface IHrRepository
 {
     Task<Hr?> GetByEmailAsync(string email);
@@ -39,14 +38,13 @@ public interface IFeedbackRepository
     Task<Feedback> CreateAsync(Feedback feedback);
 }
 
-// Implementations
 public class HrRepository : IHrRepository
 {
     private readonly AppDbContext _ctx;
     public HrRepository(AppDbContext ctx) => _ctx = ctx;
 
     public async Task<Hr?> GetByEmailAsync(string email) =>
-        await _ctx.HrUsers.FirstOrDefaultAsync(h => h.Email == email);
+        await _ctx.HrUsers.FirstOrDefaultAsync(h => h.Email.ToLower() == email.ToLower());
 }
 
 public class CandidateRepository : ICandidateRepository
@@ -113,7 +111,7 @@ public class InterviewRepository : IInterviewRepository
 
     public async Task<IEnumerable<Interview>> GetTodayAsync()
     {
-        var today = DateTime.Today;
+        var today = DateTime.UtcNow.Date;
         return await _ctx.Interviews
             .Include(i => i.Candidate)
             .Where(i => i.InterviewDate.Date == today)
@@ -123,7 +121,7 @@ public class InterviewRepository : IInterviewRepository
 
     public async Task<IEnumerable<Interview>> GetUpcomingAsync()
     {
-        var today = DateTime.Today;
+        var today = DateTime.UtcNow.Date;
         return await _ctx.Interviews
             .Include(i => i.Candidate)
             .Where(i => i.InterviewDate.Date >= today && i.Status != InterviewStatus.Completed && i.Status != InterviewStatus.Cancelled)
@@ -135,10 +133,10 @@ public class InterviewRepository : IInterviewRepository
         await _ctx.Interviews.CountAsync(i => i.Status == InterviewStatus.Completed);
 
     public async Task<int> CountTodayAsync() =>
-        await _ctx.Interviews.CountAsync(i => i.InterviewDate.Date == DateTime.Today);
+        await _ctx.Interviews.CountAsync(i => i.InterviewDate.Date == DateTime.UtcNow.Date);
 
     public async Task<int> CountUpcomingAsync() =>
-        await _ctx.Interviews.CountAsync(i => i.InterviewDate.Date > DateTime.Today && i.Status == InterviewStatus.Scheduled);
+        await _ctx.Interviews.CountAsync(i => i.InterviewDate.Date > DateTime.UtcNow.Date && i.Status == InterviewStatus.Scheduled);
 }
 
 public class FeedbackRepository : IFeedbackRepository

@@ -56,7 +56,15 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
-        if (!await context.HrUsers.AnyAsync())
+        var existingAdmin = await context.HrUsers
+            .FirstOrDefaultAsync(h => h.Email == "admin@sims.com");
+
+        if (existingAdmin != null)
+        {
+            existingAdmin.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
+            await context.SaveChangesAsync();
+        }
+        else
         {
             context.HrUsers.Add(new Hr
             {
